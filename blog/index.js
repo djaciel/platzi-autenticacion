@@ -27,7 +27,7 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
 
 function getUserInfo(accessToken) {
-  if (!accessToken) {
+  if (!accessToken || accessToken === 'undefined') {
     return Promise.resolve(null);
   }
 
@@ -49,7 +49,7 @@ function getUserInfo(accessToken) {
 }
 
 function getUserPlaylists(accessToken, userId) {
-  if (!accessToken || !userId) {
+  if (!accessToken || accessToken === 'undefined' || !userId) {
     return Promise.resolve(null);
   }
 
@@ -89,7 +89,7 @@ app.get("/", async function(req, res, next) {
 app.get("/playlists", async function(req, res, next) {
   const { access_token: accessToken } = req.cookies;
 
-  if (!accessToken) {
+  if (!accessToken || accessToken === 'undefined') {
     return res.redirect("/");
   }
 
@@ -155,7 +155,7 @@ app.get("/callback", function(req, res, next) {
     }
 
     res.cookie("access_token", body.access_token, { httpOnly: true });
-    res.redirect("/playlist");
+    res.redirect("/playlists");
   });
 });
 
