@@ -28,11 +28,9 @@ app.set("view engine", "pug");
 
 // routes
 app.get("/", async function(req, res, next) {
-  res.render("posts", { posts: [{
-    title: "Guillermo's playlist",
-    description: "Creatine supplementation is the reference compound for increasing muscular creatine levels; there is variability in this increase, however, with some nonresponders.",
-    author: "Guillermo Rodas"
-  }] });
+  res.render("playlists", 
+    { playlists: { items: playlistMocks } }
+  );
 });
 
 app.get('/login', function(req, res) {
