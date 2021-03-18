@@ -47,8 +47,44 @@ app.get('/login', function(req, res) {
   });
 
   res.cookie("auth_state", state, { httpOnly: true });
-  res.redirect(`https://accounts.spotify.com/authoize?${queryString}`);
+  res.redirect(`https://accounts.spotify.com/authorize?${queryString}`);
 })
+
+app.get('/callback', function(req, res, next) {
+  const { code, state } = req.query;
+  const { auth_state } = req.cookies;
+
+  if (state === null || state !== auth_state) {
+    next(new Error("The state doesn't match"));
+  }
+
+  res.clearCookie("auth_state");
+
+  const authOptions = {
+    url: "https://accounts.spotify.com/api/token",
+    form: {
+      code: code,
+      redirect_uri: config.spotifyRedirectUri,
+      grant_type: "authorization_code"
+    },
+    headers: {
+      Authorization: `Basic ${encodeBasic(
+        config.spotifyClientId,
+        config.spotifyClientSecret
+      )}`,
+      json: true
+    }
+  };
+
+  request.post(authOptions, function(error, response, body) {
+    if (error || response.statusCode !== 200) {
+      next(new Error("The token is invalid"));
+    }
+
+    res.cookie("access_token", body.access_token, { httpOnly: true });
+    res.redirect("/playlist");
+  })
+});
 
 // server
 const server = app.listen(3000, function() {
